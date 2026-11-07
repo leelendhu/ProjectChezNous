@@ -776,3 +776,205 @@ table {
     display: none;
   }
 }
+
+/* --- Rent vs buy ------------------------------------------------------------ */
+.headline {
+  border-top: 2px solid var(--ink);
+  padding-top: var(--space-3);
+}
+.headline-text {
+  font: 500 clamp(1.15rem, 3.4vw, 1.5rem) / 1.35 var(--font-display);
+  margin: 0 0 var(--space-2);
+}
+.eyebrow {
+  font: 600 0.78rem var(--font-body) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  border: 0 !important;
+  margin-bottom: var(--space-2);
+}
+.slider-grid {
+  display: grid;
+  gap: var(--space-3) var(--space-4);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 560px) {
+  .slider-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (min-width: 1200px) {
+  .slider-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.override.is-edited .field input[type='text'] {
+  border-color: var(--ink);
+  box-shadow: inset 3px 0 0 var(--ink);
+}
+.badge-edited {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.is-busy {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.breakdown-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.breakdown-head h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+.inline-field select {
+  font: inherit;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+}
+.bars th {
+  text-align: left;
+  font-weight: 400;
+  font-size: 0.86rem;
+  padding: 4px var(--space-2) 4px 0;
+  width: 40%;
+}
+.bars td {
+  padding: 4px 0;
+  font-size: 0.86rem;
+}
+.bars td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  width: 1%;
+  padding-left: var(--space-2);
+}
+.bar {
+  display: block;
+  height: 10px;
+  border-radius: 0 3px 3px 0;
+  min-width: 2px;
+}
+.bars-rent th,
+.bars-total th {
+  font-weight: 600;
+}
+.bars-total td,
+.bars-total th {
+  border-top: 1px solid var(--ink);
+}
+.bars-offset th,
+.bars-offset td {
+  color: var(--ok);
+}
+
+.tornado-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.88rem;
+  margin: var(--space-3) 0;
+}
+.tornado-key {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--ink-muted);
+}
+.tornado-key .swatch + .swatch,
+.tornado-key .swatch:nth-of-type(2) {
+  margin-left: var(--space-2);
+}
+.tornado-rows {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+.tornado-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+@media (min-width: 720px) {
+  .tornado-row {
+    grid-template-columns: 170px 1fr;
+    column-gap: var(--space-3);
+  }
+  .tornado-values {
+    grid-column: 2;
+  }
+}
+.tornado-label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+.tornado-track {
+  position: relative;
+  height: 18px;
+  background: var(--surface-sunk);
+  border-radius: 3px;
+}
+.tornado-zero {
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ink);
+}
+.tornado-bar {
+  position: absolute;
+  top: 3px;
+  height: 12px;
+  border-radius: 2px;
+}
+.tornado-values {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.heatmap-scroll {
+  overflow-x: auto;
+}
+.heat-legend {
+  align-items: center;
+  margin-top: var(--space-2);
+}
+.heat-ramp {
+  display: inline-block;
+  width: 90px;
+  height: 10px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--rent), var(--diverge-mid), var(--buy));
+}
+
+/* Phones: on Rent vs buy, show the answer and live sliders before the long assumptions list. */
+@media (max-width: 959px) {
+  .tab-rvb .outputs {
+    order: -1;
+  }
+}

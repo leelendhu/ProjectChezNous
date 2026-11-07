@@ -32,3 +32,8 @@ export function formatPercent(value: number, locale: string, fractionDigits = 2)
 export function formatNumber(value: number, locale: string, fractionDigits = 0): string {
   return nf(locale, { maximumFractionDigits: fractionDigits }).format(value);
 }
+
+/** Short euro amounts for chart axes and dense cells: "€12K". */
+export function formatEuroCompact(value: number, locale: string): string {
+  return nf(locale, { style: 'currency', currency: 'EUR', notation: 'compact', maximumFractionDigits: Math.abs(value) < 1000 ? 0 : 1 }).format(value);
+}
