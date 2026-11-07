@@ -2,7 +2,10 @@ import { lazy, Suspense, useState } from 'react';
 import { useStore } from '../state/store';
 import type { Tab } from '../state/urlHash';
 import { useT } from './hooks';
+import { Assumptions } from './edu/Assumptions';
+import { Glossary } from './edu/Glossary';
 import { LoanTab } from './loan/LoanTab';
+import { PrintSummary } from './PrintSummary';
 
 const RentBuyTab = lazy(() => import('./rentbuy/RentBuyTab').then((m) => ({ default: m.RentBuyTab })));
 
@@ -28,6 +31,13 @@ export function App() {
     }
   };
 
+  // Hash links would clash with the #/tab routing, so open and scroll instead.
+  const openPanel = (id: string) => {
+    const el = document.getElementById(id);
+    if (el instanceof HTMLDetailsElement) el.open = true;
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const onTabKey = (e: React.KeyboardEvent, index: number) => {
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
     const next = TABS[(index + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length]!;
@@ -41,9 +51,17 @@ export function App() {
         <div className="shell masthead-inner">
           <div>
             <h1>{t('app.title')}</h1>
-            <p className="tagline">{t('app.subtitle')}</p>
+            <p className="tagline">
+              {t('app.subtitle')} <span className="tiny-disclaimer">{t('disclaimer.tiny')}</span>
+            </p>
           </div>
           <div className="toolbar no-print">
+            <button type="button" className="btn-quiet" onClick={() => openPanel('glossary')}>
+              {t('nav.glossary')}
+            </button>
+            <button type="button" className="btn-quiet" onClick={() => openPanel('assumptions')}>
+              {t('nav.assumptions')}
+            </button>
             <button type="button" className="btn-quiet" onClick={copyLink} aria-live="polite">
               {copied ? t('actions.linkCopied') : t('actions.copyLink')}
             </button>
@@ -103,6 +121,15 @@ export function App() {
           )}
         </div>
       </main>
+
+      <section className="shell edu-area no-print">
+        <Glossary />
+        <Assumptions />
+      </section>
+
+      <div className="shell">
+        <PrintSummary />
+      </div>
 
       <footer className="disclaimer">
         <div className="shell">

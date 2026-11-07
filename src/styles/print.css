@@ -11,6 +11,8 @@
     font-size: 11pt;
   }
   .no-print,
+  main,
+  .mobile-summary,
   .inputs,
   .row-actions,
   .table-scroll,
