@@ -1074,3 +1074,68 @@ table {
   margin-left: 4px;
   white-space: nowrap;
 }
+
+/* --- Payment phases (PTZ) ------------------------------------------------------ */
+.phases {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--line);
+  padding: var(--space-3) 0 var(--space-3);
+}
+.phases h3 {
+  font: 600 0.78rem var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  margin: 0 0 var(--space-2);
+}
+.phases ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.phases li {
+  display: grid;
+  grid-template-columns: 7.5em auto 1fr;
+  gap: var(--space-3);
+  align-items: baseline;
+  padding: 4px 0 4px var(--space-2);
+  border-left: 3px solid var(--line);
+}
+.phases li.is-peak {
+  border-left-color: var(--ink);
+}
+.phase-years {
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+}
+.phase-total {
+  font: 600 1.15rem var(--font-display);
+  white-space: nowrap;
+}
+.phase-total .unit {
+  font: 400 0.8rem var(--font-body);
+  color: var(--ink-muted);
+}
+.phase-note {
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+}
+.phase-note em {
+  font-style: normal;
+  color: var(--ink);
+}
+@media (max-width: 480px) {
+  .phases li {
+    grid-template-columns: 1fr auto;
+  }
+  .phase-note {
+    grid-column: 1 / -1;
+  }
+}
+.peak-hint {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+}

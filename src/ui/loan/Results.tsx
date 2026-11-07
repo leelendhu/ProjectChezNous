@@ -26,7 +26,6 @@ function Summary({ a }: { a: LoanAnalysis }) {
   const t = useT();
   const { eur, pct } = useFmt();
   const max = useScenarioState().rules.maxDebtRatio;
-  const ptzStartYear = a.plan.ptz.deferralMonths / 12 + 1;
   return (
     <section className="summary" aria-label={t('results.title')}>
       <div className="stat">
@@ -36,7 +35,6 @@ function Summary({ a }: { a: LoanAnalysis }) {
           <span className="unit">{t('unit.eurMonth').replace('€', '')}</span>
         </p>
         <p className="stat-detail">{t('results.monthly.detail', { loan: eur(a.payment), ins: eur(a.insurance) })}</p>
-        {a.ptzMonthly > 0 && <p className="stat-detail">{t('results.monthly.ptz', { ptz: eur(a.ptzMonthly), year: ptzStartYear })}</p>}
       </div>
       <div className="stat">
         <h3>{t('results.ratio')}</h3>
@@ -56,7 +54,42 @@ function Summary({ a }: { a: LoanAnalysis }) {
         <p className={`stat-value${a.taeg > a.usury ? ' is-warn' : ''}`}>{pct(a.taeg, 2)}</p>
         <p className="stat-detail">{t('results.taeg.detail', { usury: pct(a.usury, 2) })}</p>
       </div>
+      {a.phases.length > 1 && <PaymentPhases a={a} />}
     </section>
+  );
+}
+
+/** Year label for a phase: "Years 3–15" or "Year 3". */
+export function phaseYears(t: ReturnType<typeof useT>, fromMonth: number, toMonth: number): string {
+  const from = Math.ceil(fromMonth / 12);
+  const to = Math.ceil(toMonth / 12);
+  return from === to ? t('results.phase.year', { from }) : t('results.phase.years', { from, to });
+}
+
+function PaymentPhases({ a }: { a: LoanAnalysis }) {
+  const t = useT();
+  const { eur } = useFmt();
+  const crd = useScenarioState().loan.insuranceMode === 'crd';
+  return (
+    <div className="phases">
+      <h3>{t('results.phases')}</h3>
+      <ol>
+        {a.phases.map((p) => (
+          <li key={p.fromMonth} className={p.isPeak ? 'is-peak' : undefined}>
+            <span className="phase-years">{phaseYears(t, p.fromMonth, p.toMonth)}</span>
+            <strong className="phase-total">
+              {eur(p.total)}
+              <span className="unit">{t('unit.eurMonth').replace('€', '')}</span>
+            </strong>
+            <span className="phase-note">
+              {p.mainLoan === 0 ? t('results.phase.ptzOnly') : p.ptz > 0 ? t('results.phase.withPtz', { ptz: eur(p.ptz) }) : ''}
+              {p.isPeak && <em>{(p.ptz > 0 && p.mainLoan > 0 ? ' · ' : '') + t('results.phase.peak')}</em>}
+            </span>
+          </li>
+        ))}
+      </ol>
+      {crd && <p className="stat-detail">{t('results.phase.crd')}</p>}
+    </div>
   );
 }
 
@@ -234,7 +267,10 @@ export function MobileSummary() {
     <a className="mobile-summary no-print" href="#results">
       <span>
         <small>{t('results.monthly')}</small>
-        <strong>{eur(a.payment + a.insurance)}</strong>
+        <strong>
+          {eur(a.payment + a.insurance)}
+          {a.phases.length > 1 && <span className="peak-hint"> → {eur(Math.max(...a.phases.map((p) => p.total)))}</span>}
+        </strong>
       </span>
       <span>
         <small>{t('results.ratio')}</small>

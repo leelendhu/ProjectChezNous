@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { runScenario } from '../engine/rentVsBuy';
 import { toRvbAssumptions } from '../state/selectors';
 import { useFmt, useLoanAnalysis, useScenario, useScenarioState, useT } from './hooks';
+import { phaseYears } from './loan/Results';
 import { Headline } from './rentbuy/Headline';
 
 /** One-page summary shown only when printing. */
@@ -13,6 +14,7 @@ export function PrintSummary() {
   const scenario = useScenario();
   const r = useMemo(() => runScenario(scenario), [scenario]);
   const rvb = toRvbAssumptions(s);
+  const peak = a.phases.find((p) => p.isPeak);
   const row = (label: string, value: string) => (
     <tr>
       <th scope="row">{label}</th>
@@ -34,6 +36,7 @@ export function PrintSummary() {
             {a.plan.ptzAmount > 0 && row(t('plan.ptz'), eur(a.plan.ptzAmount))}
             {row(t('print.terms'), `${s.loan.years} ${t('unit.years')} · ${pct(scenario.loan.terms.annualRate)}`)}
             {row(t('results.monthly'), eur(a.payment + a.insurance))}
+            {peak && row(t('print.peak', { years: phaseYears(t, peak.fromMonth, peak.toMonth) }), eur(peak.total))}
             {row(t('results.ratio'), pct(a.debtRatio, 1))}
             {row(t('capacity.price'), eur(a.capacity[0]?.maxPrice ?? 0))}
             {row(t('cost.title'), eur(a.cost.total))}

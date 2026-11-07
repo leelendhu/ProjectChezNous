@@ -282,3 +282,47 @@ describe('TAEG', () => {
     expect(taeg(197000, rows.map((r) => r.payment))).toBeGreaterThan(0.0383);
   });
 });
+
+describe('payment phases', () => {
+  const ptzInput = (rfr: number, years = 20) =>
+    baseLoanInput({
+      household: { ...baseLoanInput().household, firstTimeBuyer: true, rfr },
+      project: { ...baseLoanInput().project, propertyType: 'neufApartment', price: 250000, apport: 20000 },
+      terms: { ...baseLoanInput().terms, years, includePtz: true },
+    });
+
+  it('one phase without a PTZ', () => {
+    const p = analyzeLoan(baseLoanInput()).phases;
+    expect(p).toHaveLength(1);
+    expect(p[0]).toMatchObject({ fromMonth: 1, toMonth: 240, ptz: 0, isPeak: false });
+  });
+
+  it('tranche 3 PTZ: 2 years deferral, repaid until year 15, inside a 20-year loan', () => {
+    const a = analyzeLoan(ptzInput(50000));
+    expect(a.plan.ptz.tranche).toBe(3);
+    const p = a.phases;
+    expect(p.map((x) => [x.fromMonth, x.toMonth])).toEqual([
+      [1, 24],
+      [25, 180],
+      [181, 240],
+    ]);
+    expect(p[0]!.ptz).toBe(0);
+    expect(p[1]!.ptz).toBeCloseTo(90000 / 156, 6);
+    expect(p[1]!.total).toBeCloseTo(p[1]!.mainLoan + 90000 / 156, 6);
+    expect(p[1]!.isPeak).toBe(true);
+    expect(p[2]!.ptz).toBe(0);
+    expect(p[2]!.total).toBeCloseTo(p[0]!.total, 6);
+  });
+
+  it('a PTZ that outlasts the main loan leaves a PTZ-only phase', () => {
+    // Tranche 1: 25 years with 10 of deferral, main loan 20 years.
+    const p = analyzeLoan(ptzInput(20000)).phases;
+    expect(p.map((x) => [x.fromMonth, x.toMonth])).toEqual([
+      [1, 120],
+      [121, 240],
+      [241, 300],
+    ]);
+    expect(p[2]!.mainLoan).toBe(0);
+    expect(p[2]!.ptz).toBeGreaterThan(0);
+  });
+});

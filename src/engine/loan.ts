@@ -16,6 +16,52 @@ export interface DebtTimelinePoint {
   ptz: number;
 }
 
+/** A stretch of months during which the same loans are being repaid. */
+export interface PaymentPhase {
+  /** 1-based first and last month of the phase. */
+  fromMonth: number;
+  toMonth: number;
+  /** Main loan payment + insurance in the first month of the phase. */
+  mainLoan: number;
+  ptz: number;
+  total: number;
+  /** The phase with the highest total, used for the debt ratio (only set when there are several phases). */
+  isPeak: boolean;
+}
+
+/**
+ * Splits the repayment period at each point where a loan starts or stops being repaid:
+ * end of the PTZ deferral, end of the PTZ, end of the main loan.
+ * Amounts are those of each phase's first month (insurance on remaining capital declines within a phase).
+ */
+export function paymentPhases(schedule: MonthRow[], plan: FinancingPlan, months: number): PaymentPhase[] {
+  const hasPtz = plan.ptzAmount > 0;
+  const last = Math.max(months, hasPtz ? plan.ptz.totalMonths : 0);
+  if (last <= 0) return [];
+  const cuts = new Set<number>([0, last]);
+  if (hasPtz) {
+    cuts.add(Math.min(plan.ptz.deferralMonths, last));
+    cuts.add(Math.min(plan.ptz.totalMonths, last));
+  }
+  cuts.add(Math.min(months, last));
+  const bounds = [...cuts].sort((a, b) => a - b);
+  const phases: PaymentPhase[] = [];
+  for (let i = 1; i < bounds.length; i++) {
+    const from = bounds[i - 1]! + 1;
+    const to = bounds[i]!;
+    if (to < from) continue;
+    const row = schedule[from - 1];
+    const mainLoan = row ? row.payment + row.insurance : 0;
+    const ptz = ptzPaymentInMonth(plan.ptzAmount, plan.ptz.totalMonths, plan.ptz.deferralMonths, from);
+    phases.push({ fromMonth: from, toMonth: to, mainLoan, ptz, total: mainLoan + ptz, isPeak: false });
+  }
+  if (phases.length > 1) {
+    const peak = phases.reduce((best, p) => (p.total > best.total ? p : best), phases[0]!);
+    peak.isPeak = true;
+  }
+  return phases;
+}
+
 export interface CostOfCredit {
   interest: number;
   insurance: number;
@@ -40,6 +86,8 @@ export interface LoanAnalysis {
   insurance: number;
   /** PTZ monthly payment once its deferral ends (0 if none). */
   ptzMonthly: number;
+  /** Monthly payments by phase (one phase when there is no PTZ). */
+  phases: PaymentPhase[];
   /** Highest combined monthly payment of the new loans (main + insurance + PTZ). */
   peakNewPayment: number;
   existingCounted: number;
@@ -116,6 +164,7 @@ export function analyzeLoan(input: LoanInput, timelineMonths = 36): LoanAnalysis
     payment,
     insurance,
     ptzMonthly,
+    phases: paymentPhases(schedule, plan, months),
     peakNewPayment,
     existingCounted,
     existingAll,
