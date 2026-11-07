@@ -10,3 +10,6 @@ export * from './capacity';
 export * from './taeg';
 export * from './loan';
 export type * from './types';
+export * from './investmentTax';
+export * from './rentVsBuy';
+export * from './sensitivity';
