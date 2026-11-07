@@ -1,0 +1,42 @@
+@media print {
+  :root {
+    --bg: #fff;
+    --surface: #fff;
+    --surface-sunk: #f2f2f2;
+    --ink: #000;
+    --ink-muted: #444;
+    --line: #bbb;
+  }
+  body {
+    font-size: 11pt;
+  }
+  .no-print,
+  .inputs,
+  .row-actions,
+  .table-scroll,
+  .infotip-btn,
+  .slider {
+    display: none !important;
+  }
+  .masthead {
+    position: static;
+    border: 0;
+  }
+  .tab-layout {
+    display: block;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .block,
+  .chart,
+  .summary {
+    break-inside: avoid;
+  }
+  details > *:not(summary) {
+    display: block;
+  }
+}
+.print-only {
+  display: none;
+}
